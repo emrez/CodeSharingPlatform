@@ -1,0 +1,66 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+apply plugin: 'application'
+apply plugin: 'java'
+
+sourceCompatibility = 11
+
+group = 'com.platform'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+//repositories {
+//	mavenCentral()
+//}
+
+repositories {
+	mavenCentral()
+	maven { url "https://jitpack.io" }
+}
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-freemarker'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+	testCompile 'com.google.code.gson:gson:2.8.5'
+	testCompile 'org.apache.httpcomponents:httpclient:4.5.9'
+	testImplementation 'com.github.hyperskill:hs-test:release-SNAPSHOT'
+	testImplementation 'org.jsoup:jsoup:1.13.1'
+}
+
+//test {
+//	useJUnitPlatform()
+//}
+test {
+	systemProperty "file.encoding", "utf-8"
+	outputs.upToDateWhen { false }
+	afterTest { TestDescriptor test, TestResult result ->
+		if (result.resultType == TestResult.ResultType.FAILURE) {
+			def message = result.exception?.message ?: "Wrong answer"
+			def lines = message.readLines()
+			println "#educational_plugin FAILED + " + lines[0]
+			lines[1..-1].forEach { line ->
+				println "#educational_plugin" + line
+			}
+		}
+	}
+}
+
+compileJava.options.encoding = 'UTF-8'
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
